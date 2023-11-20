@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  
+    <title>Problema de Programación Lineal</title>
+  
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+      }
+  
+      .container {
+        width: 80%;
+        margin: 30px auto;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+  
+      h1 {
+        text-align: center;
+        color: #333;
+      }
+  
+      form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+  
+      label {
+        font-weight: bold;
+        margin-right: 5px;
+      }
+  
+      input[type="number"] {
+        width: 60px;
+        margin-bottom: 10px;
+        padding: 5px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+      }
+  
+      button {
+        padding: 8px 16px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+  
+      #result {
+        margin-top: 20px;
+        text-align: center;
+      }
+  
+      canvas {
+        margin-top: 20px;
+        display: block;
+        margin: 0 auto;
+      }
+    </style>
+  </head>
+<body>
+  <div class="container">
+
+    <h1>Problema de Programación Lineal</h1>
+    
+    <form id="lpForm">
+ 
+  <div>
+    <label>Función objetivo:</label>
+      <input type="number" id="coeficiente1" value="2">
+
+      <label for="coeficiente1">x1 +</label>
+
+      <input type="number" id="coeficiente2" value="3">
+
+      <label for="coeficiente2">x2</label>
+  </div>
+
+  <div>
+
+    <label>Restricción 1:</label>
+
+    <input type="number" id="restriccion1-coeficiente1" value="1">
+
+    <label for="restriccion1-coeficiente1">x1 +</label>
+
+    <input type="number" id="restriccion1-coeficiente2" value="1">
+
+    <label for="restriccion1-coeficiente2">x2 ≤</label>
+
+    <input type="number" id="restriccion1-valor" value="45">
+
+  </div>
+
+  <div>
+
+    <label>Restricción 2:</label>
+
+    <input type="number" id="restriccion2-coeficiente1" value="3">
+
+    <label for="restriccion2-coeficiente1">x1 +</label>
+
+    <input type="number" id="restriccion2-coeficiente2" value="0">
+
+    <label for="restriccion2-coeficiente2">x2 ≤</label>
+
+    <input type="number" id="restriccion2-valor" value="90">
+
+  </div>
+
+  <div>
+
+    <label>Restricción 3:</label>
+
+    <input type="number" id="restriccion3-coeficiente1" value="0">
+
+    <label for="restriccion3-coeficiente1">x1 +</label>
+
+    <input type="number" id="restriccion3-coeficiente2" value="1">
+
+    <label for="restriccion3-coeficiente2">x2 ≤</label>
+
+    <input type="number" id="restriccion3-valor" value="160">
+
+  </div>
+
+  <div>
+
+    <label>Restricción 4:</label>
+
+    <input type="number" id="restriccion4-coeficiente1" value="5">
+
+    <label for="restriccion4-coeficiente1">x1 +</label>
+
+    <input type="number" id="restriccion4-coeficiente2" value="4">
+
+    <label for="restriccion4-coeficiente2">x2 ≤</label>
+
+    <input type="number" id="restriccion4-valor" value="200">
+
+  </div>
+
+  <button type="button" onclick="solveLinearProgramming()">Resolver</button>
+
+</form>
+
+<div id="result"></div>
+
+<canvas id="chart" width="600" height="400"></canvas>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+function solveLinearProgramming() {
+
+  const funcionObjetivo = [
+
+  parseInt(document.getElementById('coeficiente1').value),
+
+  parseInt(document.getElementById('coeficiente2').value)
+
+];
+
+const restricciones = [
+
+[
+
+parseInt(document.getElementById('restriccion1-coeficiente1').value),
+
+parseInt(document.getElementById('restriccion1-coeficiente2').value),
+
+parseInt(document.getElementById('restriccion1-valor').value)
+
+],
+
+[
+
+parseInt(document.getElementById('restriccion2-coeficiente1').value),
+
+parseInt(document.getElementById('restriccion2-coeficiente2').value),
+
+parseInt(document.getElementById('restriccion2-valor').value)
+
+],
+
+[
+
+parseInt(document.getElementById('restriccion3-coeficiente1').value),
+
+parseInt(document.getElementById('restriccion3-coeficiente2').value),
+
+parseInt(document.getElementById('restriccion3-valor').value)
+
+],
+
+[
+
+parseInt(document.getElementById('restriccion4-coeficiente1').value),
+
+parseInt(document.getElementById('restriccion4-coeficiente2').value),
+
+parseInt(document.getElementById('restriccion4-valor').value)
+
+]
+
+];
+
+
+let maxValor = -Infinity;
+
+let maxVariables = [];
+
+
+const data = [];
+
+const labels = [];
+
+
+for (let x = 0; x <= 45; x += 0.1) {
+
+  let y1 = 45 - x; 
+
+  let y2 = 90 / 3; 
+
+  let y3 = 160; 
+
+  let y4 = (200 - 5 * x) / 4; 
+
+
+    let valor = funcionObjetivo[0] * x + funcionObjetivo[1] * y1;
+
+  
+    let cumpleRestricciones = true;
+  
+    for (let i = 0; i < restricciones.length; i++) {
+  
+      let restriccion = restricciones[i];
+  
+      let resultado = restriccion[0] * x + restriccion[1] * y1 - restriccion[2];
+  
+      if (resultado > 0) {
+  
+        cumpleRestricciones = false;
+  
+        break;
+      }
+    }
+
+  
+    if (cumpleRestricciones) {
+  
+      data.push({ x: x, y: y1 });
+  
+      labels.push(`(${x}, ${y1})`);
+
+
+      if (valor > maxValor) {
+      
+        maxValor = valor;
+      
+        maxVariables = [x, y1];
+      
+      }
+    
+    }
+
+    
+    if (x <= 30) {
+    
+      data.push({ x: x, y: y2 });
+    
+      labels.push(`(${x}, ${y2})`);
+
+      valor = funcionObjetivo[0] * x + funcionObjetivo[1] * y2;
+
+      cumpleRestricciones = true;
+    
+      for (let i = 0; i < restricciones.length; i++) {
+    
+        let restriccion = restricciones[i];
+    
+        let resultado = restriccion[0] * x + restriccion[1] * y2 - restriccion[2];
+    
+        if (resultado > 0) {
+    
+          cumpleRestricciones = false;
+    
+          break;
+    
+        }
+      }
+
+    
+      if (cumpleRestricciones) {
+    
+        data.push({ x: x, y: y2 });
+    
+        labels.push(`(${x}, ${y2})`);
+
+        if (valor > maxValor) {
+    
+          maxValor = valor;
+    
+          maxVariables = [x, y2];
+    
+        }
+      }
+    }
+
+    
+    if (x >= 0 && x <= 45) {
+    
+      data.push({ x: x, y: y3 });
+    
+      labels.push(`(${x}, ${y3})`);
+
+      valor = funcionObjetivo[0] * x + funcionObjetivo[1] * y3;
+
+      cumpleRestricciones = true;
+    
+      for (let i = 0; i < restricciones.length; i++) {
+    
+        let restriccion = restricciones[i];
+    
+        let resultado = restriccion[0] * x + restriccion[1] * y3 - restriccion[2];
+    
+        if (resultado > 0) {
+    
+          cumpleRestricciones = false;
+    
+          break;
+        }
+      }
+
+      if (cumpleRestricciones) {
+    
+        data.push({ x: x, y: y3 });
+    
+        labels.push(`(${x}, ${y3})`);
+
+        if (valor > maxValor) {
+    
+          maxValor = valor;
+    
+          maxVariables = [x, y3];
+    
+        }
+      }
+    }
+
+    if (x >= 0 && x <= 40) {
+    
+      data.push({ x: x, y: y4 });
+    
+      labels.push(`(${x}, ${y4})`);
+
+      valor = funcionObjetivo[0] * x + funcionObjetivo[1] * y4;
+
+      cumpleRestricciones = true;
+    
+      for (let i = 0; i < restricciones.length; i++) {
+    
+        let restriccion = restricciones[i];
+    
+        let resultado = restriccion[0] * x + restriccion[1] * y4 - restriccion[2];
+    
+        if (resultado > 0) {
+    
+          cumpleRestricciones = false;
+    
+          break;
+        }
+      }
+
+      if (cumpleRestricciones) {
+    
+        data.push({ x: x, y: y4 });
+    
+        labels.push(`(${x}, ${y4})`);
+
+        if (valor > maxValor) {
+    
+          maxValor = valor;
+    
+          maxVariables = [x, y4];
+        }
+      }
+    }
+  }
+
+ const resultContainer = document.getElementById('result');
+  
+ resultContainer.innerHTML = `
+ 
+ <p>Valor óptimo: ${maxValor}</p>
+ 
+ <p>Variables óptimas: x1 = ${maxVariables[0]}, x2 = ${maxVariables[1]}</p>
+  `;
+
+  const ctx = document.getElementById('chart').getContext('2d');
+ 
+  new Chart(ctx, {
+ 
+    type: 'scatter',
+ 
+    data: {
+ 
+      datasets: [
+ 
+      {
+ 
+        label: 'Puntos que cumplen restricciones',
+ 
+        data: data,
+ 
+        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+ 
+        pointRadius: 4
+ 
+      },
+ 
+      {
+ 
+        label: 'Punto óptimo',
+ 
+        data: [{ x: maxVariables[0], y: maxVariables[1] }],
+ 
+        backgroundColor: 'red',
+ 
+        pointRadius: 6
+ 
+      }
+ 
+    ]
+ 
+  },
+    options: {
+ 
+      responsive: true,
+ 
+      scales: {
+ 
+        x: {
+ 
+          title: {
+ 
+            display: true,
+ 
+            text: 'x1'
+ 
+          },
+ 
+          min: 0,
+ 
+          max: 45
+ 
+        },
+ 
+        y: {
+ 
+          title: {
+ 
+            display: true,
+ 
+            text: 'x2'
+ 
+          },
+ 
+          min: 0,
+ 
+          max: 45
+        }
+      },
+ 
+      plugins: {
+ 
+        tooltip: {
+ 
+          callbacks: {
+ 
+            label: function (context) {
+ 
+              const index = context.dataIndex;
+ 
+              return labels[index];
+            }
+          }
+        }
+      }
+    }
+  });
+}
+  </script>
+</body>
+</html>
